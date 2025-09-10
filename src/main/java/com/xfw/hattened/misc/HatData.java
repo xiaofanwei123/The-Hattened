@@ -3,6 +3,8 @@ package com.xfw.hattened.misc;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.xfw.hattened.HattenedMain;
+import com.xfw.hattened.event.HatThrowItemEvent;
+import com.xfw.hattened.event.HatVacuumItemEvent;
 import com.xfw.hattened.init.HattenedSounds;
 import com.xfw.hattened.networking.SuckItemPayload;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,6 +17,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -25,10 +28,10 @@ public class HatData {
     public static final HatData DEFAULT = new HatData();
 
     public static final Codec<HatData> CODEC = RecordCodecBuilder.create(builder ->
-        builder.group(
-            Codec.BOOL.fieldOf("hasHat").forGetter(HatData::hasHat),
-            Card.CODEC.listOf().fieldOf("storage").forGetter(HatData::getStorage)
-        ).apply(builder, HatData::new)
+            builder.group(
+                    Codec.BOOL.fieldOf("hasHat").forGetter(HatData::hasHat),
+                    Card.CODEC.listOf().fieldOf("storage").forGetter(HatData::getStorage)
+            ).apply(builder, HatData::new)
     );
 
     public static final StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, HatData> PACKET_CODEC = StreamCodec.composite(
@@ -97,33 +100,61 @@ public class HatData {
         HatPose pose = HatPose.SEARCHING_HAT;
 
         if (!this.isVacuuming && this.isThrowingItems && selectedCard != null) {
-
             Vec3 pos = player.position().add(0.0, 0.75, 0.0);
             Vec3 vel = player.getLookAngle();
             ItemStack thrownStack = selectedCard.getStack().split(1);
-            ItemEntity itemEntity = new ItemEntity(world, pos.x, pos.y, pos.z, thrownStack, vel.x, vel.y, vel.z);
-            itemEntity.setPickUpDelay(10);
-            world.addFreshEntity(itemEntity);
-            world.playSound(null, pos.x, pos.y, pos.z, HattenedSounds.THROW_ITEM.get(), SoundSource.PLAYERS, 0.5f, 1f);
-            player.swing(InteractionHand.MAIN_HAND, true);
-            selectedCard.markDirty();
+
+            //触发吐物品前事件
+            HatThrowItemEvent.Pre throwPreEvent = new HatThrowItemEvent.Pre(player, selectedCard, thrownStack, pos, vel);
+            if (!NeoForge.EVENT_BUS.post(throwPreEvent).isCanceled()) {
+                //使用事件中可能被修改的ItemStack
+                ItemStack finalThrownStack = throwPreEvent.getModifiedThrownStack();
+                ItemEntity itemEntity = new ItemEntity(world, pos.x, pos.y, pos.z, finalThrownStack, vel.x, vel.y, vel.z);
+                itemEntity.setPickUpDelay(10);
+                world.addFreshEntity(itemEntity);
+                world.playSound(null, pos.x, pos.y, pos.z, HattenedSounds.THROW_ITEM.get(), SoundSource.PLAYERS, 0.5f, 1f);
+                player.swing(InteractionHand.MAIN_HAND, true);
+                selectedCard.markDirty();
+
+                //触发吐物品后事件，使用最终的ItemStack
+                HatThrowItemEvent.Post throwPostEvent = new HatThrowItemEvent.Post(player, selectedCard, finalThrownStack, pos, vel);
+                NeoForge.EVENT_BUS.post(throwPostEvent);
+            } else {
+                //事件被取消，恢复物品数量
+                selectedCard.getStack().grow(1);
+            }
         }
 
         if (this.isVacuuming) {
             pose = HatPose.VACUUMING;
             world.getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(24.0))
-                .stream()
-                .filter(itemEntity -> {
-                    Vec3 toItem = itemEntity.position().subtract(player.position()).normalize();
-                    return player.hasLineOfSight(itemEntity) && !itemEntity.hasPickUpDelay() &&
-                           toItem.dot(player.getLookAngle()) > 0.9f;
-                })
-                .findFirst()
-                .ifPresent(itemEntity -> {
-                    ((ServerPlayerEntityMinterface) player).proposeItemStack(itemEntity.getItem().split(1));
-                    PacketDistributor.sendToPlayersNear((ServerLevel) player.level(), null, player.getX(), player.getY(), player.getZ(), 64.0,
-                        new SuckItemPayload(itemEntity.getId(), player.getId()));
-                });
+                    .stream()
+                    .filter(itemEntity -> {
+                        Vec3 toItem = itemEntity.position().subtract(player.position()).normalize();
+                        return player.hasLineOfSight(itemEntity) && !itemEntity.hasPickUpDelay() &&
+                                toItem.dot(player.getLookAngle()) > 0.9f;
+                    })
+                    .findFirst()
+                    .ifPresent(itemEntity -> {
+                        ItemStack vacuumedStack = itemEntity.getItem().split(1);
+
+                        //触发吸物品前事件
+                        HatVacuumItemEvent.Pre vacuumPreEvent = new HatVacuumItemEvent.Pre(player, itemEntity, vacuumedStack);
+                        if (!NeoForge.EVENT_BUS.post(vacuumPreEvent).isCanceled()) {
+                            //使用事件中可能被修改的ItemStack
+                            ItemStack finalVacuumedStack = vacuumPreEvent.getModifiedVacuumedStack();
+                            ((ServerPlayerEntityMinterface) player).proposeItemStack(finalVacuumedStack);
+                            PacketDistributor.sendToPlayersNear((ServerLevel) player.level(), null, player.getX(), player.getY(), player.getZ(), 64.0,
+                                    new SuckItemPayload(itemEntity.getId(), player.getId()));
+
+                            //触发吸物品后事件
+                            HatVacuumItemEvent.Post vacuumPostEvent = new HatVacuumItemEvent.Post(player, itemEntity, finalVacuumedStack);
+                            NeoForge.EVENT_BUS.post(vacuumPostEvent);
+                        } else {
+                            //事件被取消，恢复物品数量
+                            itemEntity.getItem().grow(1);
+                        }
+                    });
         }
 
         HattenedHelper.setPose(player, pose);

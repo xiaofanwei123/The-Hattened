@@ -65,7 +65,7 @@ public class HattenedClientEvents {
                     event.setCanceled(true);
                 }
             } else if (event.getButton() == 1) { //右键
-                if (event.getAction() == 1) { // PRESS
+                if (event.getAction() == 1) { //PRESS
                     PacketDistributor.sendToServer(new HatInputPayload(UserInput.RIGHT_MOUSE_PRESSED));
                     event.setCanceled(true);
                 } else if (event.getAction() == 0) { //RELEASE

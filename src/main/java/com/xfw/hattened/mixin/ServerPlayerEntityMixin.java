@@ -41,6 +41,12 @@ public class ServerPlayerEntityMixin implements ServerPlayerEntityMinterface {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void tick(CallbackInfo ci) {
-        HattenedHelper.updateHat((ServerPlayer) (Object) this, this.inputQueue, this.proposedAdditions);
+        if (HattenedHelper.getHatData((ServerPlayer) (Object) this).hasHat()) {
+            HattenedHelper.updateHat((ServerPlayer) (Object) this, this.inputQueue, this.proposedAdditions);
+        } else {
+            //清空避免内存泄漏，不确定TODO
+            this.inputQueue.clear();
+            this.proposedAdditions.clear();
+        }
     }
 }

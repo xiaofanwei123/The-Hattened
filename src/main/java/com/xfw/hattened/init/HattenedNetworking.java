@@ -3,6 +3,7 @@ package com.xfw.hattened.init;
 import com.xfw.hattened.HattenedMain;
 import com.xfw.hattened.client.ClientStorage;
 import com.xfw.hattened.client.HattenedClientEvents;
+import com.xfw.hattened.event.HatConfettiEvent;
 import com.xfw.hattened.misc.HatData;
 import com.xfw.hattened.misc.HattenedHelper;
 import com.xfw.hattened.misc.ServerPlayerEntityMinterface;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -43,18 +45,25 @@ public class HattenedNetworking {
                     ServerPlayer player = (ServerPlayer) context.player();
                     ((ServerPlayerEntityMinterface) player).queueUserInput(payload.input());
                     if (payload.input() == UserInput.MIDDLE_MOUSE_PRESSED) {
-                        player.swing(InteractionHand.MAIN_HAND,true);
-                        ConfettiPayload confettiPayload = new ConfettiPayload(
-                                player.position().add(0.0, 0.75, 0.0),
-                                player.getLookAngle()
-                        );
-                        PacketDistributor.sendToPlayersNear(
-                                player.serverLevel(),
-                                null,
-                                player.getX(), player.getY(), player.getZ(),
-                                32.0,
-                                confettiPayload
-                        );
+                        HatConfettiEvent.Pre confettiPreEvent = new HatConfettiEvent.Pre(player);
+                        //触发烟花前事件
+                        if (!NeoForge.EVENT_BUS.post(confettiPreEvent).isCanceled()) {
+                            player.swing(InteractionHand.MAIN_HAND,true);
+                            ConfettiPayload confettiPayload = new ConfettiPayload(
+                                    player.position().add(0.0, 0.75, 0.0),
+                                    player.getLookAngle()
+                            );
+                            PacketDistributor.sendToPlayersNear(
+                                    player.serverLevel(),
+                                    null,
+                                    player.getX(), player.getY(), player.getZ(),
+                                    32.0,
+                                    confettiPayload
+                            );
+                            //触发烟花后事件
+                            HatConfettiEvent.Post confettiPostEvent = new HatConfettiEvent.Post(player);
+                            NeoForge.EVENT_BUS.post(confettiPostEvent);
+                        }
                     }
                 }
         );
