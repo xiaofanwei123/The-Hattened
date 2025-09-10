@@ -1,0 +1,69 @@
+package com.xfw.hattened;
+
+import com.mojang.logging.LogUtils;
+import com.xfw.hattened.component.TooltipDisplayComponent;
+import com.xfw.hattened.init.HattenedAttachments;
+import com.xfw.hattened.init.HattenedNetworking;
+import com.xfw.hattened.init.HattenedSounds;
+import com.xfw.hattened.item.HatItem;
+import com.xfw.hattened.misc.Card;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import org.slf4j.Logger;
+
+import java.util.List;
+import java.util.Random;
+
+@Mod(HattenedMain.MODID)
+public class HattenedMain {
+    public static final String MODID = "hattened";
+    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Random RANDOM = new Random();
+
+    //Particles
+    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, MODID);
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CONFETTI_PARTICLE =
+        PARTICLES.register("confetti", () -> new SimpleParticleType(true));
+
+    //Data Components
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MODID);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<Card>>> HAT_STORAGE_COMPONENT =
+        DATA_COMPONENTS.register("hat_storage", () -> DataComponentType.<List<Card>>builder()
+            .persistent(Card.CODEC.listOf())
+            .networkSynchronized(Card.STREAM_CODEC.apply(ByteBufCodecs.list()))
+            .build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<TooltipDisplayComponent>> TOOLTIP_DISPLAY =
+            DATA_COMPONENTS.register("tooltip_display", () ->
+                    DataComponentType.<TooltipDisplayComponent>builder()
+                            .persistent(TooltipDisplayComponent.CODEC)
+                            .build()
+            );
+    //Items
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MODID);
+    public static final DeferredHolder<Item, HatItem> HAT_ITEM = ITEMS.register("hat", HatItem::new);
+
+    public HattenedMain(IEventBus modEventBus, ModContainer modContainer) {
+        ITEMS.register(modEventBus);
+        PARTICLES.register(modEventBus);
+        DATA_COMPONENTS.register(modEventBus);
+        HattenedAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        HattenedSounds.SOUNDS.register(modEventBus);
+        modEventBus.addListener(HattenedNetworking::register);
+    }
+
+
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
+}
+

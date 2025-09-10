@@ -1,0 +1,49 @@
+{
+	"confetti": {
+		"sounds": [
+			"fireworks/blast1"
+		],
+		"subtitle": "subtitles.item.hat.confetti"
+	},
+	"hat_equip": {
+		"sounds": [
+			"item/armor/equip_leather1",
+			"item/armor/equip_leather5"
+		],
+		"subtitle": "subtitles.item.hat.equip"
+	},
+	"insert_item": {
+		"sounds": [
+			"item/bundle/insert1",
+			{ "name": "item/bundle/insert1", "pitch": 0.95 },
+			{ "name": "item/bundle/insert1", "pitch": 1.05 },
+			"item/bundle/insert2",
+			{ "name": "item/bundle/insert2", "pitch": 0.95 },
+			{ "name": "item/bundle/insert2", "pitch": 1.05 },
+			"item/bundle/insert3",
+			{ "name": "item/bundle/insert3", "pitch": 0.95 },
+			{ "name": "item/bundle/insert3", "pitch": 1.05 }
+		],
+		"subtitle": "subtitles.item.hat.insert"
+	},
+	"remove_item": {
+		"sounds": [
+			"item/bundle/remove_one1",
+			{ "name": "item/bundle/remove_one1", "pitch": 1.05 },
+			{ "name": "item/bundle/remove_one1", "pitch": 1.1 },
+			"item/bundle/remove_one2",
+			{ "name": "item/bundle/remove_one2", "pitch": 1.05 },
+			{ "name": "item/bundle/remove_one2", "pitch": 1.1 },
+			"item/bundle/remove_one3",
+			{ "name": "item/bundle/remove_one3", "pitch": 1.05 },
+			{ "name": "item/bundle/remove_one3", "pitch": 1.1 }
+		],
+		"subtitle": "subtitles.item.hat.remove"
+	},
+	"throw_item": {
+		"sounds": [
+			"random/bow"
+		],
+		"subtitle": "subtitles.item.hat.throw"
+	}
+}

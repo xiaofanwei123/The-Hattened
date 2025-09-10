@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "package": "com.xfw.hattened.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ItemEntityMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "refmap": "hattened.refmap.json",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "minVersion": "0.8",
+  "client": [
+  ]
+}
