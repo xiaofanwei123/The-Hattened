@@ -1,6 +1,6 @@
 package com.xfw.hattened.mixin;
 
-import com.xfw.hattened.init.HattenedSounds;
+import com.xfw.hattened.client.sound.HattenedSounds;
 import com.xfw.hattened.misc.HattenedHelper;
 import com.xfw.hattened.misc.ServerPlayerEntityMinterface;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,8 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.LinkedList;
 
 @Mixin(ItemEntity.class)
 public class ItemEntityMixin {

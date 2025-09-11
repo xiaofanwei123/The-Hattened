@@ -30,7 +30,7 @@ public class HattenedClientEvents {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre event) {
-        if(Minecraft.getInstance().player != null) {
+        if(Minecraft.getInstance().player != null && HattenedHelper.getHatData(Minecraft.getInstance().player).hasHat()) {
             PeripheralManager.tick();
             ClientStorage.ticks += 1;
             ClientStorage.tick(HattenedHelper.getHatData(Minecraft.getInstance().player));

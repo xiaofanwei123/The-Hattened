@@ -1,10 +1,10 @@
 package com.xfw.hattened;
 
 import com.mojang.logging.LogUtils;
-import com.xfw.hattened.component.TooltipDisplayComponent;
+import com.xfw.hattened.client.tooltipComponent.TooltipDisplayComponent;
 import com.xfw.hattened.init.HattenedAttachments;
 import com.xfw.hattened.init.HattenedNetworking;
-import com.xfw.hattened.init.HattenedSounds;
+import com.xfw.hattened.client.sound.HattenedSounds;
 import com.xfw.hattened.item.HatItem;
 import com.xfw.hattened.misc.Card;
 import net.minecraft.core.component.DataComponentType;

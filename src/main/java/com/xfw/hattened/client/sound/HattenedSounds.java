@@ -1,4 +1,4 @@
-package com.xfw.hattened.init;
+package com.xfw.hattened.client.sound;
 
 import com.xfw.hattened.HattenedMain;
 import net.minecraft.core.registries.Registries;
@@ -24,8 +24,4 @@ public class HattenedSounds {
 
     public static final DeferredHolder<SoundEvent, SoundEvent> HAT_CONFETTI =
         SOUNDS.register("confetti", () -> SoundEvent.createVariableRangeEvent(HattenedMain.id("confetti")));
-
-
-    public static void init() {
-    }
 }

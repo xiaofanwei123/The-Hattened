@@ -1,4 +1,4 @@
-package com.xfw.hattened.component;
+package com.xfw.hattened.client.tooltipComponent;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

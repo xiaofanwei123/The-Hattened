@@ -14,15 +14,11 @@ public abstract class HatThrowItemEvent extends Event {
     private final ServerPlayer player;
     private final Card card;
     private final ItemStack thrownStack;
-    private final Vec3 position;
-    private final Vec3 velocity;
 
-    public HatThrowItemEvent(ServerPlayer player, Card card, ItemStack thrownStack, Vec3 position, Vec3 velocity) {
+    public HatThrowItemEvent(ServerPlayer player, Card card, ItemStack thrownStack) {
         this.player = player;
         this.card = card;
         this.thrownStack = thrownStack;
-        this.position = position;
-        this.velocity = velocity;
     }
 
     /**
@@ -47,28 +43,14 @@ public abstract class HatThrowItemEvent extends Event {
     }
 
     /**
-     * 获取物品被吐出的位置
-     */
-    public Vec3 getPosition() {
-        return position;
-    }
-
-    /**
-     * 获取物品被吐出的速度向量
-     */
-    public Vec3 getVelocity() {
-        return velocity;
-    }
-
-    /**
      * 帽子吐物品前事件
      * 在物品被吐出之前触发，可以被取消
      */
     public static class Pre extends HatThrowItemEvent implements ICancellableEvent {
         private ItemStack modifiedThrownStack;
 
-        public Pre(ServerPlayer player, Card card, ItemStack thrownStack, Vec3 position, Vec3 velocity) {
-            super(player, card, thrownStack, position, velocity);
+        public Pre(ServerPlayer player, Card card, ItemStack thrownStack) {
+            super(player, card, thrownStack);
             this.modifiedThrownStack = thrownStack.copy(); //创建副本以供修改
         }
 
@@ -94,8 +76,8 @@ public abstract class HatThrowItemEvent extends Event {
      * 在物品被成功吐出之后触发，不可取消
      */
     public static class Post extends HatThrowItemEvent {
-        public Post(ServerPlayer player, Card card, ItemStack thrownStack, Vec3 position, Vec3 velocity) {
-            super(player, card, thrownStack, position, velocity);
+        public Post(ServerPlayer player, Card card, ItemStack thrownStack) {
+            super(player, card, thrownStack);
         }
     }
 }

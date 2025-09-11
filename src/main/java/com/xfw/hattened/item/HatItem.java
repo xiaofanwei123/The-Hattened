@@ -1,14 +1,13 @@
 package com.xfw.hattened.item;
 
 import com.xfw.hattened.HattenedMain;
-import com.xfw.hattened.component.TooltipDisplayComponent;
-import com.xfw.hattened.init.HattenedSounds;
+import com.xfw.hattened.client.tooltipComponent.TooltipDisplayComponent;
+import com.xfw.hattened.client.sound.HattenedSounds;
 import com.xfw.hattened.misc.Card;
 import com.xfw.hattened.misc.HatData;
 import com.xfw.hattened.misc.HattenedHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -32,6 +31,7 @@ public class HatItem extends Item {
         );
     }
 
+    //将帽子的物品转为Attachments存到玩家身上(不占用物品栏位)
     @Override
     public InteractionResultHolder<ItemStack> use(Level world, Player user, InteractionHand hand) {
         HatData currentHatData = HattenedHelper.getHatData(user);
@@ -51,12 +51,15 @@ public class HatItem extends Item {
     @Override
     public boolean overrideStackedOnOther(ItemStack hat, Slot slot, ClickAction clickType, Player player) {
         ItemStack clickedStack = slot.getItem();
+        if(clickedStack.is(HattenedMain.HAT_ITEM.get())) return false;
+        //拿起帽子左键空地方会吸取槽位的物品
         if (clickType == ClickAction.PRIMARY && !clickedStack.isEmpty()) {
             insertItem(hat, clickedStack, player);
             slot.set(ItemStack.EMPTY);
             return true;
         }
 
+        //拿起帽子右键空地方会放下里面的物品
         if (clickType == ClickAction.SECONDARY && clickedStack.isEmpty() &&
                 !hat.getOrDefault(HattenedMain.HAT_STORAGE_COMPONENT.get(), Collections.emptyList()).isEmpty()) {
             ItemStack extracted = removeItem(hat, player);
@@ -72,14 +75,18 @@ public class HatItem extends Item {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack hat, ItemStack clickedStack, Slot slot,
                                             ClickAction clickType, Player player, SlotAccess cursorStackReference) {
+        if(clickedStack.is(HattenedMain.HAT_ITEM.get())) return false;
+
         List<Card> existing = hat.getOrDefault(HattenedMain.HAT_STORAGE_COMPONENT.get(), Collections.emptyList());
 
+        //物品左键帽子放里面物品
         if (clickType == ClickAction.PRIMARY && !clickedStack.isEmpty()) {
             insertItem(hat, clickedStack, player);
             cursorStackReference.set(ItemStack.EMPTY);
             return true;
         }
 
+        //空右键取出帽子的物品
         if (clickType == ClickAction.SECONDARY && clickedStack.isEmpty() && !existing.isEmpty()) {
             ItemStack extracted = removeItem(hat, player);
             if (extracted != null) {
@@ -122,7 +129,7 @@ public class HatItem extends Item {
 
         player.playSound(HattenedSounds.REMOVE_ITEM.get(), 0.8f, 0.8f + player.level().random.nextFloat() * 0.4f);
         List<Card> newStorage = storage.subList(1, storage.size());
-        Card extracted = storage.get(0);
+        Card extracted = storage.getFirst();
         hat.set(HattenedMain.HAT_STORAGE_COMPONENT.get(), newStorage);
         return extracted.getStack();
     }

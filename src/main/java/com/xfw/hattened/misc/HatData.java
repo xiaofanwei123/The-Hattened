@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.xfw.hattened.HattenedMain;
 import com.xfw.hattened.event.HatThrowItemEvent;
 import com.xfw.hattened.event.HatVacuumItemEvent;
-import com.xfw.hattened.init.HattenedSounds;
+import com.xfw.hattened.client.sound.HattenedSounds;
 import com.xfw.hattened.networking.SuckItemPayload;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -105,7 +105,7 @@ public class HatData {
             ItemStack thrownStack = selectedCard.getStack().split(1);
 
             //触发吐物品前事件
-            HatThrowItemEvent.Pre throwPreEvent = new HatThrowItemEvent.Pre(player, selectedCard, thrownStack, pos, vel);
+            HatThrowItemEvent.Pre throwPreEvent = new HatThrowItemEvent.Pre(player, selectedCard, thrownStack);
             if (!NeoForge.EVENT_BUS.post(throwPreEvent).isCanceled()) {
                 //使用事件中可能被修改的ItemStack
                 ItemStack finalThrownStack = throwPreEvent.getModifiedThrownStack();
@@ -117,7 +117,7 @@ public class HatData {
                 selectedCard.markDirty();
 
                 //触发吐物品后事件，使用最终的ItemStack
-                HatThrowItemEvent.Post throwPostEvent = new HatThrowItemEvent.Post(player, selectedCard, finalThrownStack, pos, vel);
+                HatThrowItemEvent.Post throwPostEvent = new HatThrowItemEvent.Post(player, selectedCard, finalThrownStack);
                 NeoForge.EVENT_BUS.post(throwPostEvent);
             } else {
                 //事件被取消，恢复物品数量

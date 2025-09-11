@@ -2,7 +2,6 @@ package com.xfw.hattened.init;
 
 import com.xfw.hattened.HattenedMain;
 import com.xfw.hattened.client.ClientStorage;
-import com.xfw.hattened.client.HattenedClientEvents;
 import com.xfw.hattened.event.HatConfettiEvent;
 import com.xfw.hattened.misc.HatData;
 import com.xfw.hattened.misc.HattenedHelper;
@@ -13,6 +12,7 @@ import com.xfw.hattened.networking.HatDataSyncPayload;
 import com.xfw.hattened.networking.HatInputPayload;
 import com.xfw.hattened.networking.HatKeybindPayload;
 import com.xfw.hattened.networking.SuckItemPayload;
+import com.xfw.hattened.client.sound.HattenedSounds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ItemPickupParticle;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -69,6 +69,7 @@ public class HattenedNetworking {
         );
 
         //H脱帽子
+        //将玩家的Attachments转化为数据组件存到物品里面
         registrar.playToServer(
             HatKeybindPayload.TYPE,
             HatKeybindPayload.STREAM_CODEC,
@@ -86,36 +87,35 @@ public class HattenedNetworking {
         
         //吸物品
         registrar.playToClient(
-                SuckItemPayload.TYPE,
-                SuckItemPayload.STREAM_CODEC,
-                (payload, context) -> {
-                    context.enqueueWork(() -> {
-                        Minecraft mc = Minecraft.getInstance();
-                        if (mc.level != null) {
-                            Entity itemEntity = mc.level.getEntity(payload.itemEntityId());
-                            Entity collector = mc.level.getEntity(payload.playerId());
-                            if (itemEntity instanceof ItemEntity item && collector != null) {
-                                mc.particleEngine.add(new ItemPickupParticle(mc.getEntityRenderDispatcher(),mc.renderBuffers(),mc.level, itemEntity,collector));
-                                mc.level.playLocalSound(
-                                        collector.getX(), collector.getY(), collector.getZ(),
-                                        SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS,
-                                        0.2F,
-                                        (HattenedMain.RANDOM.nextFloat() - HattenedMain.RANDOM.nextFloat()) * 1.4F + 2.0F,
-                                        false
-                                );
+            SuckItemPayload.TYPE,
+            SuckItemPayload.STREAM_CODEC,
+            (payload, context) -> {
+                context.enqueueWork(() -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.level != null) {
+                        Entity itemEntity = mc.level.getEntity(payload.itemEntityId());
+                        Entity collector = mc.level.getEntity(payload.playerId());
+                        if (itemEntity instanceof ItemEntity item && collector != null) {
+                            mc.particleEngine.add(new ItemPickupParticle(mc.getEntityRenderDispatcher(),mc.renderBuffers(),mc.level, itemEntity,collector));
+                            mc.level.playLocalSound(
+                                    collector.getX(), collector.getY(), collector.getZ(),
+                                    SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS,
+                                    0.2F,
+                                    (HattenedMain.RANDOM.nextFloat() - HattenedMain.RANDOM.nextFloat()) * 1.4F + 2.0F,
+                                    false
+                            );
 
-                                if (!item.getItem().isEmpty()) {
-                                    item.getItem().shrink(1);
-                                }
-                                if (item.getItem().isEmpty()) {
-                                    item.discard();
-                                }
+                            if (!item.getItem().isEmpty()) {
+                                item.getItem().shrink(1);
+                            }
+                            if (item.getItem().isEmpty()) {
+                                item.discard();
                             }
                         }
-                    });
-                }
+                    }
+                });
+            }
         );
-
 
         //播放撒烟花
         registrar.playToClient(

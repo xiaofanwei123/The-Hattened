@@ -83,7 +83,6 @@ public class HattenedHelper {
         while (!proposedAdditions.isEmpty()) {
             newStorage = insertStack(newStorage, proposedAdditions.poll());
         }
-
         setHatData(player, new HatData(hat.hasHat(), newStorage, hat.isUsingHat(), hat.isThrowingItems(), hat.isVacuuming()));
     }
 }
