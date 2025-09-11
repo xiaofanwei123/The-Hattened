@@ -19,8 +19,12 @@ public class ClientStorage {
 
     public static void tick(HatData hat) {
         ClientStorage.hat = hat;
-        usingTime = Math.max(0, Math.min(10, usingTime + (PeripheralManager.HAT_KEYBIND.isDown() ? 1 : -1)));
-
+        if (hat.hasHat()) {
+            usingTime = Math.max(0, Math.min(10, usingTime + (PeripheralManager.HAT_KEYBIND.isDown() ? 1 : -1)));
+        } else {
+            usingTime = 0;
+            return;
+        }
         for (int index = 0; index < hat.getStorage().size(); index++) {
             Card card = hat.getStorage().get(index);
             if (!cards.containsKey(card.getUuid())) {

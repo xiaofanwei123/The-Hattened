@@ -8,6 +8,7 @@ import com.xfw.hattened.client.renderer.HatFeatureRenderer;
 import com.xfw.hattened.client.renderer.HatGUI;
 import com.xfw.hattened.client.renderer.HatTooltipComponent;
 import com.xfw.hattened.item.HatItem;
+import com.xfw.hattened.misc.HatData;
 import com.xfw.hattened.misc.HattenedHelper;
 import com.xfw.hattened.misc.PeripheralManager;
 import com.xfw.hattened.networking.HatInputPayload;
@@ -30,10 +31,13 @@ public class HattenedClientEvents {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Pre event) {
-        if(Minecraft.getInstance().player != null && HattenedHelper.getHatData(Minecraft.getInstance().player).hasHat()) {
-            PeripheralManager.tick();
-            ClientStorage.ticks += 1;
-            ClientStorage.tick(HattenedHelper.getHatData(Minecraft.getInstance().player));
+        if(Minecraft.getInstance().player != null) {
+            HatData currentHatData = HattenedHelper.getHatData(Minecraft.getInstance().player);
+            ClientStorage.tick(currentHatData);
+            if (currentHatData.hasHat()) {
+                PeripheralManager.tick();
+                ClientStorage.ticks += 1;
+            }
         }
     }
 
@@ -156,10 +160,11 @@ public class HattenedClientEvents {
                 event.getGuiGraphics().pose().popPose();
             }
         }
+
     }
 
     @SubscribeEvent
-    public static void onRenderGuiPost(RenderGuiEvent.Post event) {
+    public static void onRenderGuiPost(RenderGuiEvent.Pre event) {
         float progress = ClientStorage.getProgress(event.getPartialTick());
         if (progress > 0.0f) {
             HatGUI.render(event.getGuiGraphics(), progress);
