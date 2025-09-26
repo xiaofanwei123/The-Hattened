@@ -3,6 +3,7 @@ package com.xfw.hattened;
 import com.mojang.logging.LogUtils;
 import com.xfw.hattened.client.tooltipComponent.TooltipDisplayComponent;
 import com.xfw.hattened.init.HattenedAttachments;
+import com.xfw.hattened.init.HattenedClientNetworking;
 import com.xfw.hattened.init.HattenedNetworking;
 import com.xfw.hattened.client.sound.HattenedSounds;
 import com.xfw.hattened.item.HatItem;
@@ -14,8 +15,8 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -42,6 +43,7 @@ public class HattenedMain {
             .persistent(Card.CODEC.listOf())
             .networkSynchronized(Card.STREAM_CODEC.apply(ByteBufCodecs.list()))
             .build());
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<TooltipDisplayComponent>> TOOLTIP_DISPLAY =
             DATA_COMPONENTS.register("tooltip_display", () ->
                     DataComponentType.<TooltipDisplayComponent>builder()
@@ -52,15 +54,17 @@ public class HattenedMain {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, MODID);
     public static final DeferredHolder<Item, HatItem> HAT_ITEM = ITEMS.register("hat", HatItem::new);
 
-    public HattenedMain(IEventBus modEventBus, ModContainer modContainer) {
+    public HattenedMain(IEventBus modEventBus, Dist dist) {
         ITEMS.register(modEventBus);
         PARTICLES.register(modEventBus);
         DATA_COMPONENTS.register(modEventBus);
         HattenedAttachments.ATTACHMENT_TYPES.register(modEventBus);
         HattenedSounds.SOUNDS.register(modEventBus);
         modEventBus.addListener(HattenedNetworking::register);
+        if (dist.isClient()) {
+            modEventBus.addListener(HattenedClientNetworking::register);
+        }
     }
-
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);

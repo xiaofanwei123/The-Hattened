@@ -105,7 +105,6 @@ public class HattenedClientEvents {
         event.registerSpriteSet(HattenedMain.CONFETTI_PARTICLE.get(), ConfettiParticle.Provider::new);
     }
 
-    @SuppressWarnings("unchecked")
     private static void addHatLayer(EntityRenderersEvent.AddLayers event, PlayerSkin.Model skinModel) {
         PlayerRenderer renderer = event.getSkin(skinModel);
         if (renderer != null) {

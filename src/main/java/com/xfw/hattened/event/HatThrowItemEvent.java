@@ -3,7 +3,6 @@ package com.xfw.hattened.event;
 import com.xfw.hattened.misc.Card;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 

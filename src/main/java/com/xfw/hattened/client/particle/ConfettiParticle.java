@@ -72,9 +72,9 @@ public class ConfettiParticle extends TextureSheetParticle {
 
         this.yd -= 0.04D * (double)this.gravity;
         this.move(this.xd, this.yd, this.zd);
-        this.xd *= (double)this.friction;
-        this.yd *= (double)this.friction;
-        this.zd *= (double)this.friction;
+        this.xd *= this.friction;
+        this.yd *= this.friction;
+        this.zd *= this.friction;
 
         if (this.onGround || (this.x == this.xo && this.y == this.yo && this.z == this.zo && this.age != 0)) {
             if (this.age < this.lifetime - 5) {

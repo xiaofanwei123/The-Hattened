@@ -1,11 +1,9 @@
 package com.xfw.hattened.misc;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.xfw.hattened.client.ClientStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 
@@ -38,36 +36,4 @@ public class Poser {
                 break;
         }
     }
-
-
-    private static void applyModelPartTransform(ModelPart modelPart, com.mojang.blaze3d.vertex.PoseStack matrices) {
-        matrices.translate(modelPart.x / 16.0f, modelPart.y / 16.0f, modelPart.z / 16.0f);
-
-        if (modelPart.zRot != 0.0f) {
-            matrices.mulPose(Axis.ZP.rotation(modelPart.zRot));
-        }
-        if (modelPart.yRot != 0.0f) {
-            matrices.mulPose(Axis.YP.rotation(modelPart.yRot));
-        }
-        if (modelPart.xRot != 0.0f) {
-            matrices.mulPose(Axis.XP.rotation(modelPart.xRot));
-        }
-
-        if (modelPart.xScale != 1.0f || modelPart.yScale != 1.0f || modelPart.zScale != 1.0f) {
-            matrices.scale(modelPart.xScale, modelPart.yScale, modelPart.zScale);
-        }
-    }
-
-    /**
-     * 线性插值函数
-     */
-    private static float lerp(float delta, float start, float end) {
-        return start + delta * (end - start);
-    }
-
-
-
-
-
-
 }

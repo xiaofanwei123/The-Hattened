@@ -11,7 +11,8 @@ public class CardRenderer {
         if (drawText) {
             var text = card.getStack().getHoverName();
             int textWidth = textRenderer.width(text);
-            context.drawString(textRenderer, text, -textWidth / 2, (int)(-14 * scale) - 5, 0xFFFFFFFF, true);
+            //根据物品稀有度获取颜色TODO
+            context.drawString(textRenderer, text, -textWidth / 2, (int)(-14 * scale) - 5, 0xFFFFFF, true);
         }
 
         context.pose().pushPose();

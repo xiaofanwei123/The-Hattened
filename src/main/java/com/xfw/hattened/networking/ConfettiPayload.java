@@ -14,11 +14,6 @@ public record ConfettiPayload(Vec3 position, Vec3 direction) implements CustomPa
             FriendlyByteBuf::readVec3
     );
 
-    public static final StreamCodec<FriendlyByteBuf, Long> LONG_CODEC = StreamCodec.of(
-            FriendlyByteBuf::writeLong,
-            FriendlyByteBuf::readLong
-    );
-
     public static final StreamCodec<FriendlyByteBuf, ConfettiPayload> STREAM_CODEC = StreamCodec.composite(
             VEC3_STREAM_CODEC, ConfettiPayload::position,
             VEC3_STREAM_CODEC, ConfettiPayload::direction,

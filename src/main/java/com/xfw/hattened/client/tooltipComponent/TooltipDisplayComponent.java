@@ -23,27 +23,8 @@ public record TooltipDisplayComponent(boolean hideTooltip, List<DataComponentTyp
         this.hiddenComponents = hiddenComponents == null ? List.of() : List.copyOf(hiddenComponents);
     }
 
-    public TooltipDisplayComponent with(DataComponentType<?> component, boolean hidden) {
-        Objects.requireNonNull(component);
-        boolean already = this.hiddenComponents.contains(component);
-        if (already == hidden) return this;
-
-        List<DataComponentType<?>> copy = new ArrayList<>(this.hiddenComponents);
-        if (hidden) copy.add(component);
-        else copy.remove(component);
-        return new TooltipDisplayComponent(this.hideTooltip, copy);
-    }
-
     public boolean shouldDisplay(DataComponentType<?> component) {
         if (this.hideTooltip) return false;
         return !this.hiddenComponents.contains(Objects.requireNonNull(component));
-    }
-
-    @Override
-    public String toString() {
-        return "TooltipDisplayComponent{" +
-                "hideTooltip=" + hideTooltip +
-                ", hiddenComponents=" + hiddenComponents +
-                '}';
     }
 }
