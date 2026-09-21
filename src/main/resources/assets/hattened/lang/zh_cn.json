@@ -1,0 +1,13 @@
+{
+  "key.categories.hattened": "疯帽客",
+  "key.hattened.hat": "操控之帽",
+  "key.hattened.dequip": "卸下帽子",
+  "item.hattened.hat": "帽子",
+  "subtitles.item.hat.confetti": "帽子喷射彩纸",
+  "subtitles.item.hat.equip": "帽子沙沙作响",
+  "subtitles.item.hat.insert": "物品消失",
+  "subtitles.item.hat.remove": "物品变出",
+  "subtitles.item.hat.throw": "物品飞出",
+  "curios.identifier.hat": "帽子",
+  "curios.modifiers.hat": "戴在头上时："
+}

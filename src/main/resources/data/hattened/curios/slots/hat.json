@@ -1,0 +1,6 @@
+{
+  "order": 50,
+  "size": 1,
+  "icon": "hattened:slot/empty_hat_slot",
+  "validators": ["curios:tag"]
+}

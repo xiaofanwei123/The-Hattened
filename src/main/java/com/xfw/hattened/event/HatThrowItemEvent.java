@@ -1,0 +1,84 @@
+package com.xfw.hattened.event;
+
+import com.xfw.hattened.misc.Card;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.ICancellableEvent;
+
+/** 帽子抛射物品的公开 NeoForge 事件 */
+public abstract class HatThrowItemEvent extends Event {
+    private final ServerPlayer player;
+    private final Card card;
+    private final ItemStack thrownStack;
+
+    /** 保存执行玩家、来源卡片和本次计划吐出的物品快照。 */
+    public HatThrowItemEvent(ServerPlayer player, Card card, ItemStack thrownStack) {
+        this.player = player;
+        this.card = card;
+        this.thrownStack = thrownStack;
+    }
+
+    /**
+     * 获取执行吐物品动作的玩家
+     */
+    public ServerPlayer getPlayer() {
+        return player;
+    }
+
+    /**
+     * 获取被吐出的卡片
+     */
+    public Card getCard() {
+        return card;
+    }
+
+    /**
+     * 获取被吐出的物品堆叠
+     */
+    public ItemStack getThrownStack() {
+        return thrownStack;
+    }
+
+    /**
+     * 帽子吐物品前事件
+     * 在物品被吐出之前触发，可以被取消
+     */
+    public static class Pre extends HatThrowItemEvent implements ICancellableEvent {
+        private ItemStack modifiedThrownStack;
+
+        /** 创建可取消的吐出前事件，并提供一份可由监听器替换的物品副本。 */
+        public Pre(ServerPlayer player, Card card, ItemStack thrownStack) {
+            super(player, card, thrownStack);
+            this.modifiedThrownStack = thrownStack.copy(); //创建副本以供修改
+        }
+
+        /**
+         * 获取修改后的被吐出物品堆叠
+         * 事件监听器可以修改这个ItemStack来改变实际吐出的物品
+         */
+        public ItemStack getModifiedThrownStack() {
+            return modifiedThrownStack;
+        }
+
+        /**
+         * 设置修改后的被吐出物品堆叠
+         * @param modifiedStack 要吐出的新物品堆叠
+         */
+        public void setModifiedThrownStack(ItemStack modifiedStack) {
+            this.modifiedThrownStack = modifiedStack.copy();
+        }
+    }
+
+    /**
+     * 帽子吐物品后事件
+     * 在物品被成功吐出之后触发，不可取消
+     */
+    public static class Post extends HatThrowItemEvent {
+        /** 创建吐出成功后的通知事件，记录实际生成的物品。 */
+        public Post(ServerPlayer player, Card card, ItemStack thrownStack) {
+            super(player, card, thrownStack);
+        }
+    }
+}
